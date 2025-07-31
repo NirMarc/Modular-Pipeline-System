@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include "plugins/plugin_common.h"
-#include "plugins/sync/consumer_producer.h"
-#include "plugins/sync/monitor.h"
+#include "../plugins/plugin_common.h"
+#include "../plugins/sync/consumer_producer.h"
+#include "../plugins/sync/monitor.h"
 #include <dlfcn.h>
 
 int test_plugin(const char* plugin_name) {
@@ -44,10 +44,10 @@ int test_plugin(const char* plugin_name) {
 }
 
 int main() {
-    test_plugin("logger");
-    test_plugin("uppercaser");
+    // test_plugin("logger");
+    // test_plugin("uppercaser");
     // test_plugin("rotator");
     // test_plugin("flipper");
-    // test_plugin("typewriter");
+    test_plugin("typewriter");
     return 0;
 }
