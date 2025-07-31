@@ -40,12 +40,6 @@ void log_error(plugin_context_t* context, const char* message);
 void log_info(plugin_context_t* context, const char* message);
 
 /**
- * Get the plugin's name
- * @return The plugin's name (should be modified or freed)
- */
-__attribute__((visibility("default"))) const char* get_plugin_name(void);
-
-/**
  * Initialize the common plugin infrastructure with the specified queue size
  * @param process_function Plugin-specific process function
  * @param name Plugin name
@@ -53,6 +47,12 @@ __attribute__((visibility("default"))) const char* get_plugin_name(void);
  * @return NULL on success, error message on failure
  */
 const char* common_plugin_init(const char* (*process_function)(const char*), const char* name, int queue_size);
+
+/**
+ * Get the plugin's name
+ * @return The plugin's name (should be modified or freed)
+ */
+__attribute__((visibility("default"))) const char* get_plugin_name(void);
 
 /**
  * Initialize the plugin with the speficied queue size - calls common_plugin_init
@@ -79,7 +79,7 @@ __attribute__((visibility("default"))) const char* plugin_place_work(const char*
  * Attach this plugin to the next plugin in the chain
  * @param next_place_work Function pointer to the next plugin's place_work_function
  */
-__attribute__((visibility("default"))) const char* plugin_attach(const char* (*next_place_work)(const char*));
+__attribute__((visibility("default"))) void plugin_attach(const char* (*next_place_work)(const char*));
 
 /**
  * Wait untill the plugin has finished processing all work and is ready to shutdown
