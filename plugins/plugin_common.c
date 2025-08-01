@@ -1,19 +1,21 @@
 #include <stdio.h>
 #include "plugin_common.h"
+#include "plugin_sdk.h"
+#include <unistd.h>
 
 static plugin_context_t* g_context = NULL;
 
 void* plugin_consumer_thread(void* arg) {
     plugin_context_t* context = (plugin_context_t*)arg;
-    char* input;
+    const char* input;
     while ((input = consumer_producer_get(context->queue)) != NULL) {
-        char* output = context->process_function(input);
+        const char* output = context->process_function(input);
         if (context->next_place_work != NULL) {
             context->next_place_work(output);
         }
         free((void*)output);
     }
-    free(input);
+    free((void*)input);
     context->finished = 1;
     return NULL;
 }
@@ -35,7 +37,7 @@ const char* common_plugin_init(const char* (*process_function)(const char*), con
     context->process_function = process_function;
     context->initialized = 1;
     context->finished = 0;
-    context->consumer_thread = NULL;
+    context->consumer_thread = 0;
     context->next_place_work = NULL; 
     context->queue = malloc(sizeof(consumer_producer_t));
     if (!context->queue) {
@@ -75,7 +77,6 @@ __attribute__((visibility("default"))) const char* plugin_place_work(const char*
 }
 
 __attribute__((visibility("default"))) void plugin_attach(const char* (*next_place_work)(const char*)) {
-    if (!g_context) return "Plugin context not initialized";
     g_context->next_place_work = next_place_work;
     return;
 }
