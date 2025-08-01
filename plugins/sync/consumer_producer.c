@@ -1,4 +1,8 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <pthread.h>
 #include "consumer_producer.h"
 
 const char* consumer_producer_init(consumer_producer_t* queue, int capacity){
@@ -10,6 +14,7 @@ const char* consumer_producer_init(consumer_producer_t* queue, int capacity){
     queue->size = 0;
     queue->head = 0;
     queue->tail = 0;
+    queue->finished = 0;  
     monitor_init(&queue->not_full_monitor);
     monitor_init(&queue->not_empty_monitor);
     monitor_init(&queue->finished_monitor);
@@ -41,7 +46,13 @@ const char* consumer_producer_put(consumer_producer_t* queue, const char* item){
 const char* consumer_producer_get(consumer_producer_t* queue){
     if (!queue) return "Queue is NULL";
     while (queue->size == 0) {
+        if (queue->finished) {
+            return NULL; 
+        }
         monitor_wait(&queue->not_empty_monitor);
+        if (queue->finished && queue->size == 0) {
+            return NULL; 
+        }
     }
     const char* item = queue->items[queue->head];
     queue->head = (queue->head + 1) % queue->capacity;
@@ -52,7 +63,9 @@ const char* consumer_producer_get(consumer_producer_t* queue){
 
 void consumer_producer_signal_finished(consumer_producer_t* queue){
     if (!queue) return;
+    queue->finished = 1;  
     monitor_signal(&queue->finished_monitor);
+    monitor_signal(&queue->not_empty_monitor);
     return;
 }
 

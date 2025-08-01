@@ -6,8 +6,10 @@
 typedef struct {
     char** items;
     int capacity;
+    int size;
     int head;
     int tail;
+    int finished;  // Flag to indicate queue is finished
     monitor_t not_full_monitor;
     monitor_t not_empty_monitor;
     monitor_t finished_monitor;

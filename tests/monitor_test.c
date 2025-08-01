@@ -6,7 +6,6 @@
 #include <unistd.h>
 #include <assert.h>
 
-// Global variables for testing
 int test_passed = 1;
 int thread_received_signal = 0;
 int multiple_threads_received = 0;
@@ -67,12 +66,11 @@ void test_basic_functionality() {
     }
     printf("PASSED: monitor_init\n");
     
-    // Test signal and wait
     pthread_t thread;
     thread_received_signal = 0;
     pthread_create(&thread, NULL, single_thread_func, &monitor);
     
-    sleep(1); // Give thread time to start waiting
+    sleep(1); 
     printf("Signaling monitor\n");
     monitor_signal(&monitor);
     
@@ -98,19 +96,16 @@ void test_multiple_threads() {
     pthread_t threads[3];
     multiple_threads_received = 0;
     
-    // Create multiple threads
     for (int i = 0; i < 3; i++) {
         pthread_create(&threads[i], NULL, multiple_thread_func, &monitor);
     }
     
-    sleep(1); // Give threads time to start waiting
+    sleep(1); 
     printf("Signaling monitor for multiple threads\n");
     monitor_signal(&monitor);
     
-    // Wait for the first thread to complete
     pthread_join(threads[0], NULL);
     
-    // Cancel the other threads since they will wait indefinitely
     for (int i = 1; i < 3; i++) {
         pthread_cancel(threads[i]);
         pthread_join(threads[i], NULL);
@@ -132,19 +127,16 @@ void test_reset_functionality() {
     monitor_t monitor;
     monitor_init(&monitor);
     
-    // Signal the monitor
     monitor_signal(&monitor);
     printf("Monitor signaled\n");
     
-    // Reset the monitor
     monitor_reset(&monitor);
     printf("Monitor reset\n");
     
-    // Create a thread that should wait
     pthread_t thread;
     pthread_create(&thread, NULL, reset_test_func, &monitor);
     
-    sleep(1); // Give thread time to start waiting
+    sleep(1); 
     printf("Signaling monitor after reset\n");
     monitor_signal(&monitor);
     
@@ -160,11 +152,9 @@ void test_immediate_signal() {
     monitor_t monitor;
     monitor_init(&monitor);
     
-    // Signal before creating thread
     monitor_signal(&monitor);
     printf("Monitor signaled before thread creation\n");
-    
-    // Create thread that should receive signal immediately
+
     pthread_t thread;
     thread_received_signal = 0;
     pthread_create(&thread, NULL, single_thread_func, &monitor);
@@ -193,11 +183,10 @@ void test_multiple_signals() {
     
     sleep(1);
     
-    // Send multiple signals
     for (int i = 0; i < 3; i++) {
         printf("Sending signal %d\n", i + 1);
         monitor_signal(&monitor);
-        usleep(100000); // 100ms delay between signals
+        usleep(100000); 
     }
     
     pthread_join(thread, NULL);
@@ -215,7 +204,6 @@ void test_multiple_signals() {
 void test_edge_cases() {
     printf("\n=== Testing Edge Cases ===\n");
     
-    // Test with NULL monitor 
     printf("Testing NULL monitor (should not crash)\n");
     monitor_signal(NULL);
     monitor_reset(NULL);
@@ -223,12 +211,10 @@ void test_edge_cases() {
     monitor_destroy(NULL);
     printf("PASSED: NULL monitor handling\n");
     
-    // Test uninitialized monitor 
     monitor_t uninit_monitor;
     printf("Testing uninitialized monitor (should not crash)\n");
     monitor_signal(&uninit_monitor);
     monitor_reset(&uninit_monitor);
-    // monitor_wait(&uninit_monitor);
     monitor_destroy(&uninit_monitor);
     printf("PASSED: Uninitialized monitor handling\n");
 }
