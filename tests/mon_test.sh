@@ -1,3 +1,3 @@
-gcc tests/test_monitor.c plugins/sync/monitor.c -lpthread -o tests/test_monitor
+gcc tests/monitor_test.c plugins/sync/monitor.c -lpthread -o tests/monitor_test
 
-./tests/test_monitor
+./tests/monitor_test

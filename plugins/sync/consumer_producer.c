@@ -1,7 +1,63 @@
 #include <stdio.h>
 #include "consumer_producer.h"
 
-int cp() {
-    printf("Hello from consumer_producer.c\n");
+const char* consumer_producer_init(consumer_producer_t* queue, int capacity){
+    if (!queue) return "Queue is NULL";
+    if (capacity <= 0) return "Capacity must be greater than 0";
+    queue->items = malloc(capacity * sizeof(char*));
+    if (!queue->items) return "Failed to allocate memory";
+    queue->capacity = capacity;
+    queue->size = 0;
+    queue->head = 0;
+    queue->tail = 0;
+    monitor_init(&queue->not_full_monitor);
+    monitor_init(&queue->not_empty_monitor);
+    monitor_init(&queue->finished_monitor);
+    return NULL;
+}
+
+void consumer_producer_destroy(consumer_producer_t* queue){
+    if (!queue) return;
+    free(queue->items);
+    monitor_destroy(&queue->not_full_monitor);
+    monitor_destroy(&queue->not_empty_monitor);
+    monitor_destroy(&queue->finished_monitor);
+    return;
+}
+
+const char* consumer_producer_put(consumer_producer_t* queue, const char* item){
+    if (!queue) return "Queue is NULL";
+    if (!item) return "Item is NULL";
+    while (queue->size == queue->capacity) {
+        monitor_wait(&queue->not_full_monitor);
+    }
+    queue->items[queue->tail] = strdup(item);
+    queue->tail = (queue->tail + 1) % queue->capacity;
+    queue->size++;
+    monitor_signal(&queue->not_empty_monitor);
+    return NULL;
+}
+
+const char* consumer_producer_get(consumer_producer_t* queue){
+    if (!queue) return "Queue is NULL";
+    while (queue->size == 0) {
+        monitor_wait(&queue->not_empty_monitor);
+    }
+    const char* item = queue->items[queue->head];
+    queue->head = (queue->head + 1) % queue->capacity;
+    queue->size--;
+    monitor_signal(&queue->not_full_monitor);
+    return item;
+}
+
+void consumer_producer_signal_finished(consumer_producer_t* queue){
+    if (!queue) return;
+    monitor_signal(&queue->finished_monitor);
+    return;
+}
+
+int consumer_producer_wait_finished(consumer_producer_t* queue){
+    if (!queue) return -1;
+    monitor_wait(&queue->finished_monitor);
     return 0;
 }
