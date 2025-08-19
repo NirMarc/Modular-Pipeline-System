@@ -4,7 +4,10 @@
 int monitor_init(monitor_t* monitor) {
     monitor->signaled = 0;
     if (pthread_mutex_init(&monitor->mutex, NULL)) return -1;
-    if (pthread_cond_init(&monitor->cond, NULL)) return -1;
+    if (pthread_cond_init(&monitor->cond, NULL)) {
+        pthread_mutex_destroy(&monitor->mutex);
+        return -1;
+    }
     return 0;
 }
 
