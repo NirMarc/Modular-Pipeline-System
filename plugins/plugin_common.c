@@ -5,6 +5,14 @@
 
 static plugin_context_t* g_context = NULL;
 
+plugin_context_t* get_context(void) {
+    if (!g_context) {
+        printf("Plugin context not initialized\n");
+        return NULL;
+    }
+    return g_context;
+}
+
 void* plugin_consumer_thread(void* arg) {
     plugin_context_t* context = (plugin_context_t*)arg;
     const char* input;
@@ -35,17 +43,26 @@ const char* common_plugin_init(const char* (*process_function)(const char*), con
     }
     context->name = name;
     context->process_function = process_function;
-    context->initialized = 1;
+    context->initialized = 0;
     context->finished = 0;
     context->consumer_thread = 0;
     context->next_place_work = NULL; 
     context->queue = malloc(sizeof(consumer_producer_t));
     if (!context->queue) {
+        free(context);
         return "Could not allocate memory for plugin queue";
     }
     if (consumer_producer_init(context->queue, queue_size) != NULL) {
+        free(context->queue);
+        free(context);
         return "Could not initialize plugin queue";
     }
+    if (pthread_create(&context->consumer_thread, NULL, plugin_consumer_thread, context) != 0) {
+        free(context->queue);
+        free(context);
+        return "Could not create consumer thread";
+    }
+    context->initialized = 1;
     g_context = context;
     return NULL;
 }
