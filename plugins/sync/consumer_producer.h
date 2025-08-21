@@ -9,7 +9,8 @@ typedef struct {
     int size;
     int head;
     int tail;
-    int finished;  // Flag to indicate queue is finished
+    int finished; 
+    pthread_mutex_t mutex;
     monitor_t not_full_monitor;
     monitor_t not_empty_monitor;
     monitor_t finished_monitor;
@@ -44,7 +45,7 @@ const char* consumer_producer_put(consumer_producer_t* queue, const char* item);
  * @param queue Pointer to the queue structure
  * @return String item or NULL if queue is empty
  */
-const char* consumer_producer_get(consumer_producer_t* queue);
+char* consumer_producer_get(consumer_producer_t* queue);
 
 /**
  * Signal that processing is finished

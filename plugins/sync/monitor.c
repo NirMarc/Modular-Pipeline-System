@@ -23,6 +23,7 @@ void monitor_signal(monitor_t* monitor) {
     pthread_mutex_lock(&monitor->mutex);
     monitor->signaled = 1;
     pthread_cond_signal(&monitor->cond); 
+    //pthread_cond_broadcast(&monitor->cond);
     pthread_mutex_unlock(&monitor->mutex);
     return;
 }
