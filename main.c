@@ -108,7 +108,11 @@ static void attach_plugins(void) {
 
 static int read_input(void) {
     char line[MAX_LINE];
-    while (fgets(line, sizeof(line), stdin) != NULL) {
+    while (1) {
+        fgets(line, sizeof(line), stdin);
+        if (feof(stdin)) {
+            continue;
+        }
         if (strcmp(line, "<END>\n") == 0) break;
         line[strcspn(line, "\n")] = '\0';
         const char* err = g_plugin_handles[0].place_work(line);
