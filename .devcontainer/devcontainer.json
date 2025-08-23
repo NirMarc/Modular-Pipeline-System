@@ -1,0 +1,17 @@
+{
+    "name": "PluginDev",
+    "build": {
+      "dockerfile": "../Dockerfile"
+    },
+    "settings": {
+      "terminal.integrated.shell.linux": "/bin/bash"
+    },
+    "extensions": [
+      "ms-vscode.cpptools",
+      "ms-vscode.cmake-tools"
+    ],
+    "mounts": [
+      "source=${localWorkspaceFolder},target=/project,type=bind"
+    ],
+    "workspaceFolder": "/project"
+  }
