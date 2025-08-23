@@ -5,25 +5,17 @@
 
 static plugin_context_t* g_context = NULL;
 
-plugin_context_t* get_context(void) {
-    if (!g_context) {
-        printf("Plugin context not initialized\n");
-        return NULL;
-    }
-    return g_context;
-}
-
 void* plugin_consumer_thread(void* arg) {
     plugin_context_t* context = (plugin_context_t*)arg;
-    const char* input;
+    char* input;
     while ((input = consumer_producer_get(context->queue)) != NULL) {
-        const char* output = context->process_function(input);
+        char* output = (char*)context->process_function(input);
         if (context->next_place_work != NULL) {
             context->next_place_work(output);
         }
-        free((void*)output);
+        if (output != input) free(output);
     }
-    free((void*)input);
+    free(input);
     context->finished = 1;
     return NULL;
 }
@@ -69,15 +61,13 @@ const char* common_plugin_init(const char* (*process_function)(const char*), con
 
 __attribute__((visibility("default"))) const char* plugin_fini(void) {
     if (!g_context) return "Plugin context not initialized";
-    consumer_producer_signal_finished(g_context->queue);
-    if (g_context->consumer_thread) {
-        pthread_join(g_context->consumer_thread, NULL);
-    }
-    while (!g_context->finished) {
-        usleep(100000); 
-    }
+    
+    const char* err = plugin_wait_finished();
+    if (err != NULL) return err;
+  
     consumer_producer_destroy(g_context->queue);
     free(g_context->queue);
+    g_context->queue = NULL;
     free(g_context);
     g_context = NULL;
     return NULL;
@@ -86,14 +76,16 @@ __attribute__((visibility("default"))) const char* plugin_fini(void) {
 
 __attribute__((visibility("default"))) const char* plugin_place_work(const char* str) {
     if (!g_context) return "Plugin context not initialized";
-    char* work = malloc(strlen(str) + 1);
-    if (!work) return "Could not allocate memory for work";
-    strcpy(work, str);
-    if (consumer_producer_put(g_context->queue, work) != NULL) {
-        free(work);
-        return "Could not place work in plugin queue";
-    }
-    return NULL;
+    //char* work = malloc(strlen(str) + 1);
+    //if (!work) return "Could not allocate memory for work";
+    //strcpy(work, str);
+    //if (consumer_producer_put(g_context->queue, str) != NULL) {
+        //free(work);
+    //     return "Could not place work in plugin queue";
+    // }
+    //return NULL;
+    const char* err = consumer_producer_put(g_context->queue, str);
+    return err;
 }
 
 __attribute__((visibility("default"))) void plugin_attach(const char* (*next_place_work)(const char*)) {
@@ -102,9 +94,13 @@ __attribute__((visibility("default"))) void plugin_attach(const char* (*next_pla
 
 __attribute__((visibility("default"))) const char* plugin_wait_finished(void) {
     if (!g_context) return  "Plugin context not initialized";
-    // while (!g_context->finished) {
-    //     usleep(100000); 
-    // }
-    g_context->finished = 1;
+    consumer_producer_signal_finished(g_context->queue);
+    if (g_context->consumer_thread) {
+        int err = pthread_join(g_context->consumer_thread, NULL);
+        if (err != 0) {
+            return "Could not join consumer thread";
+        }
+        g_context->consumer_thread = 0;
+    }
     return NULL;
 }

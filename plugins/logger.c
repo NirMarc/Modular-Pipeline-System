@@ -6,7 +6,7 @@ const char* plugin_transform(const char* input) {
         return NULL;
     }
     
-    printf("%s\n", input);
+    printf("[logger] %s\n", input);
     return input;
 }
 

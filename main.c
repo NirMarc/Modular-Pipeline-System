@@ -109,8 +109,8 @@ static void attach_plugins(void) {
 static int read_input(void) {
     char line[MAX_LINE];
     while (fgets(line, sizeof(line), stdin) != NULL) {
+        if (strcmp(line, "<END>\n") == 0) break;
         line[strcspn(line, "\n")] = '\0';
-        if (strcmp(line, "<END>") == 0) break;
         const char* err = g_plugin_handles[0].place_work(line);
         if (err) {
             fprintf(stderr, "Failed to place work in plugin %s: %s\n", g_plugin_handles[0].name, err);

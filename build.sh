@@ -20,7 +20,7 @@ print_error() {
 mkdir -p output
 
 
-for plugin_name in logger uppercaser rotator flipper typewriter; do
+for plugin_name in logger uppercaser rotator flipper typewriter expander; do
     print_status "Building $plugin_name"
     gcc -fPIC -shared -o output/$plugin_name.so plugins/$plugin_name.c plugins/plugin_common.c  plugins/sync/monitor.c plugins/sync/consumer_producer.c \
     -ldl -lpthread || {

@@ -8,11 +8,11 @@ const char* plugin_transform(const char* input) {
         return NULL;
     }
     
-    // Print the string character by character with a delay of 100ms
+    printf("[typewriter] ");
     for (int i = 0; input[i] != '\0'; i++) {
         printf("%c", input[i]);
         fflush(stdout);
-        usleep(100000); // 100ms
+        usleep(100000);
     }
     printf("\n");
     return input;
