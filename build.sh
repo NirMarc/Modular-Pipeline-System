@@ -28,4 +28,4 @@ for plugin_name in logger uppercaser rotator flipper typewriter; do
         exit 1
     }
 done
-gcc main.c plugins/plugin_common.c plugins/sync/consumer_producer.c plugins/sync/monitor.c -o output/dummy_try
+gcc main.c plugins/plugin_common.c plugins/sync/consumer_producer.c plugins/sync/monitor.c -o output/analyzer

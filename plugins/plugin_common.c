@@ -73,6 +73,9 @@ __attribute__((visibility("default"))) const char* plugin_fini(void) {
     if (g_context->consumer_thread) {
         pthread_join(g_context->consumer_thread, NULL);
     }
+    while (!g_context->finished) {
+        usleep(100000); 
+    }
     consumer_producer_destroy(g_context->queue);
     free(g_context->queue);
     free(g_context);
@@ -95,13 +98,13 @@ __attribute__((visibility("default"))) const char* plugin_place_work(const char*
 
 __attribute__((visibility("default"))) void plugin_attach(const char* (*next_place_work)(const char*)) {
     g_context->next_place_work = next_place_work;
-    return;
 }
 
 __attribute__((visibility("default"))) const char* plugin_wait_finished(void) {
     if (!g_context) return  "Plugin context not initialized";
-    while (!g_context->finished) {
-        usleep(100000); 
-    }
+    // while (!g_context->finished) {
+    //     usleep(100000); 
+    // }
+    g_context->finished = 1;
     return NULL;
 }
