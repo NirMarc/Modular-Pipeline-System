@@ -65,7 +65,7 @@ static void init_plugins(char** argv) {
         g_plugin_handles[i].handle = dlmopen(LM_ID_NEWLM, path, RTLD_NOW | RTLD_LOCAL);
 
         if (!g_plugin_handles[i].handle) {
-            fprintf(stderr, "Failed to load plugin %s: %s\n", g_plugin_handles[i].name, dlerror());
+            fprintf(stderr, "%s\n", dlerror());
             for (int j = 0; j < i; j++) {
                 dlclose(g_plugin_handles[j].handle);
             }
