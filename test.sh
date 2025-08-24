@@ -85,7 +85,7 @@ ACTUAL=$(printf "$INPUT\n<END>\n" | "$BIN" 20 rotator flipper logger expander up
 assert_eq "$ACTUAL" "$EXPECTED" "pipeline with same plugin multiple times did not match expected output" "$INPUT"
 print_status "pipeline with same plugin multiple times: PASS"
 
-print_status "-- Tested all plugins --"
+print_status "-- Passed all plugins --"
 
 print_info "-- Testing Input Arguments --"
 
@@ -122,7 +122,7 @@ ACTUAL=$("$BIN" 20 2>&1)
 assert_eq "$ACTUAL" "$EXPECTED" "Expected error message when plugins are missing" "./output/analyzer 20"
 print_status "plugins are missing: PASS"
 
-print_status "--Test input arguments: PASS --"
+print_status "-- Passed all input arguments tests --"
 
 print_info "-- Testing Edge Cases --"
 
@@ -134,6 +134,6 @@ ACTUAL=$(printf "$INPUT\n<END>\n" | "$BIN" 20 logger)
 assert_eq "$ACTUAL" "$EXPECTED" "empty input did not match expected output" "$INPUT"
 print_status "empty input: PASS"
 
-print_status "-- Tested all edge cases --"
+print_status "-- Passed all edge cases --"
 
-print_status "-- Tested all tests --"
+print_status "---- Passed all tests ----"
