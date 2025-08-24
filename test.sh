@@ -113,8 +113,8 @@ print_status "queue size must be an integer: PASS"
 print_status "--Test input queue size: PASS --"
 
 print_info "Testing invalid plugin"
-EXPECTED="Failed to load plugin notplug: ./output/notplug.so: cannot open shared object file: No such file or directory
+EXPECTED="./output/notplug.so: cannot open shared object file: No such file or directory
 $(help_msg)"
 ACTUAL=$("$BIN" 20 notplug 2>&1)
-assert_eq "$ACTUAL" "$EXPECTED" "invalid plugin did not match expected output" "invalid"
+assert_eq "$ACTUAL" "$EXPECTED" "invalid plugin did not match expected output" "./output/analyzer 20 notplug"
 print_status "invalid plugin: PASS"
