@@ -30,6 +30,26 @@ assert_eq() {
         exit 1
     fi
 }
+
+help_msg() {
+    printf "Usage: ./output/analyzer <queue_size> <plugin1> ... <pluginN>
+
+Arguments:
+  <queue_size>: The maximum number of items in each plugin's queue
+  <plugin1> ... <pluginN>: Name of plugins to load (without .so extension)
+
+Available plugins:
+logger: Log all strings that pass through
+typewriter: Simulates typewriter effect with delays
+uppercaser: Converts all characters to uppercase
+rotator: Moves every character to the right, Last character moves to the front
+flipper: Reverses the order of characters in each string
+expander: Expands each character with spaces
+
+Example:
+  ./output/analyzer 20 uppercaser rotator logger"
+}
+
 # Single Test Case
 print_info "Testing logger"
 EXPECTED="[logger] Single Test Case
@@ -66,3 +86,35 @@ INPUT="Test pipeline with same plugin multiple times"
 ACTUAL=$(printf "$INPUT\n<END>\n" | "$BIN" 20 rotator flipper logger expander uppercaser logger flipper expander)
 assert_eq "$ACTUAL" "$EXPECTED" "pipeline with same plugin multiple times did not match expected output" "$INPUT"
 print_status "pipeline with same plugin multiple times: PASS"
+
+
+print_info "-- Testing Input Queue Size --"
+
+print_info "Testing queue size must be greater than 0"
+EXPECTED="Queue size must be greater than 0
+$(help_msg)"
+ACTUAL=$("$BIN" 0 logger 2>&1)
+assert_eq "$ACTUAL" "$EXPECTED" "Expected error message when queue size is 0" "./output/analyzer 0 logger"
+print_status "queue size must be greater than 0: PASS"
+
+print_info "Testing queue size is not an integer"
+EXPECTED="Queue size must be greater than 0
+$(help_msg)"
+ACTUAL=$("$BIN" a logger 2>&1)
+assert_eq "$ACTUAL" "$EXPECTED" "Expected error message when queue size is not an integer" "./output/analyzer a logger"
+print_status "queue size must be an integer: PASS"
+
+print_info "Testing queue size is missing"
+EXPECTED="$(help_msg)"
+ACTUAL=$("$BIN" logger 2>&1)
+assert_eq "$ACTUAL" "$EXPECTED" "Expected error message when queue size is missing" "./output/analyzer logger"
+print_status "queue size must be an integer: PASS"
+
+print_status "--Test input queue size: PASS --"
+
+print_info "Testing invalid plugin"
+EXPECTED="Failed to load plugin notplug: ./output/notplug.so: cannot open shared object file: No such file or directory
+$(help_msg)"
+ACTUAL=$("$BIN" 20 notplug 2>&1)
+assert_eq "$ACTUAL" "$EXPECTED" "invalid plugin did not match expected output" "invalid"
+print_status "invalid plugin: PASS"
