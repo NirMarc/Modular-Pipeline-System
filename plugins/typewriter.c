@@ -15,6 +15,7 @@ const char* plugin_transform(const char* input) {
         usleep(100000);
     }
     printf("\n");
+    fflush(stdout);
     return input;
 }
 
