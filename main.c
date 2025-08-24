@@ -53,6 +53,7 @@ void print_help() {
     fprintf(stderr, "\n");
     fprintf(stderr, "Example:\n");
     fprintf(stderr, "  ./output/analyzer 20 uppercaser rotator logger\n");
+    fflush(stderr);
 }
 
 static void init_plugins(char** argv) {
@@ -150,7 +151,6 @@ static void shutdown_pipeline(void) {
 }
 int main(int argc, char** argv) {
     if (argc < 3) {
-        fprintf(stderr, "Usage: %s <queue_size> <plugin1> ... <pluginN>\n", argv[0]);
         print_help();
         return 1;
     }
