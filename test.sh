@@ -50,7 +50,8 @@ Example:
   ./output/analyzer 20 uppercaser rotator logger"
 }
 
-# Single Test Case
+print_info "-- Testing Plugins --"
+
 print_info "Testing logger"
 EXPECTED="[logger] Single Test Case
 Pipeline shutdown complete"
@@ -59,7 +60,6 @@ ACTUAL="$(printf "$INPUT\n<END>\n" | "$BIN" 20 logger)"
 assert_eq "$ACTUAL" "$EXPECTED" "logger did not match expected output" "$INPUT"
 print_status "logger: PASS"
 
-# Multiple Test Cases
 print_info "Testing uppercaser expander logger"
 EXPECTED="[logger] U P P E R C A S E R   E X P A N D E R   L O G G E R
 Pipeline shutdown complete"
@@ -76,8 +76,6 @@ ACTUAL="$(printf "$INPUT\n<END>\n" | "$BIN" 20 rotator flipper typewriter)"
 assert_eq "$ACTUAL" "$EXPECTED" "rotator flipper typewriter did not match expected output" "$INPUT"
 print_status "rotator flipper typewriter: PASS"
 
-print_status "-- Tested all plugins --"
-
 print_info "Testing pipeline with same plugin multiple times"
 EXPECTED="[logger] emit elpitlum nigulp emas htiw enilepip tseTs
 [logger] E M I T   E L P I T L U M   N I G U L P   E M A S   H T I W   E N I L E P I P   T S E T S
@@ -87,8 +85,9 @@ ACTUAL=$(printf "$INPUT\n<END>\n" | "$BIN" 20 rotator flipper logger expander up
 assert_eq "$ACTUAL" "$EXPECTED" "pipeline with same plugin multiple times did not match expected output" "$INPUT"
 print_status "pipeline with same plugin multiple times: PASS"
 
+print_status "-- Tested all plugins --"
 
-print_info "-- Testing Input Queue Size --"
+print_info "-- Testing Input Arguments --"
 
 print_info "Testing queue size must be greater than 0"
 EXPECTED="Queue size must be greater than 0
@@ -110,11 +109,31 @@ ACTUAL=$("$BIN" logger 2>&1)
 assert_eq "$ACTUAL" "$EXPECTED" "Expected error message when queue size is missing" "./output/analyzer logger"
 print_status "queue size must be an integer: PASS"
 
-print_status "--Test input queue size: PASS --"
-
-print_info "Testing invalid plugin"
+print_info "Testing invalid plugin name"
 EXPECTED="./output/notplug.so: cannot open shared object file: No such file or directory
 $(help_msg)"
 ACTUAL=$("$BIN" 20 notplug 2>&1)
 assert_eq "$ACTUAL" "$EXPECTED" "invalid plugin did not match expected output" "./output/analyzer 20 notplug"
-print_status "invalid plugin: PASS"
+print_status "invalid plugin name: PASS"
+
+print_info "Testing plugins are missing"
+EXPECTED="$(help_msg)"
+ACTUAL=$("$BIN" 20 2>&1)
+assert_eq "$ACTUAL" "$EXPECTED" "Expected error message when plugins are missing" "./output/analyzer 20"
+print_status "plugins are missing: PASS"
+
+print_status "--Test input arguments: PASS --"
+
+print_info "-- Testing Edge Cases --"
+
+print_info "Testing empty input"
+EXPECTED="[logger] 
+Pipeline shutdown complete"
+INPUT=""
+ACTUAL=$(printf "$INPUT\n<END>\n" | "$BIN" 20 logger)
+assert_eq "$ACTUAL" "$EXPECTED" "empty input did not match expected output" "$INPUT"
+print_status "empty input: PASS"
+
+print_status "-- Tested all edge cases --"
+
+print_status "-- Tested all tests --"
