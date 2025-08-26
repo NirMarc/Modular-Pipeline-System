@@ -39,12 +39,12 @@ Arguments:
   <plugin1> ... <pluginN>: Name of plugins to load (without .so extension)
 
 Available plugins:
-logger: Log all strings that pass through
-typewriter: Simulates typewriter effect with delays
-uppercaser: Converts all characters to uppercase
-rotator: Moves every character to the right, Last character moves to the front
-flipper: Reverses the order of characters in each string
-expander: Expands each character with spaces
+  logger: Log all strings that pass through
+  typewriter: Simulates typewriter effect with delays
+  uppercaser: Converts all characters to uppercase
+  rotator: Moves every character to the right, Last character moves to the front
+  flipper: Reverses the order of characters in each string
+  expander: Expands each character with spaces
 
 Example:
   ./output/analyzer 20 uppercaser rotator logger"

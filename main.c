@@ -37,23 +37,23 @@ static void build_plugin_path(char* path, size_t path_size, const char* plugin_n
 }
 
 void print_help() {
-    fprintf(stderr, "Usage: ./output/analyzer <queue_size> <plugin1> ... <pluginN>\n");
-    fprintf(stderr, "\n");
-    fprintf(stderr, "Arguments:\n");
-    fprintf(stderr, "  <queue_size>: The maximum number of items in each plugin's queue\n");
-    fprintf(stderr, "  <plugin1> ... <pluginN>: Name of plugins to load (without .so extension)\n");
-    fprintf(stderr, "\n");
-    fprintf(stderr, "Available plugins:\n");
-    fprintf(stderr, "logger: Log all strings that pass through\n");
-    fprintf(stderr, "typewriter: Simulates typewriter effect with delays\n");
-    fprintf(stderr, "uppercaser: Converts all characters to uppercase\n");
-    fprintf(stderr, "rotator: Moves every character to the right, Last character moves to the front\n");
-    fprintf(stderr, "flipper: Reverses the order of characters in each string\n");
-    fprintf(stderr, "expander: Expands each character with spaces\n");
-    fprintf(stderr, "\n");
-    fprintf(stderr, "Example:\n");
-    fprintf(stderr, "  ./output/analyzer 20 uppercaser rotator logger\n");
-    fflush(stderr);
+    printf("Usage: ./output/analyzer <queue_size> <plugin1> ... <pluginN>\n");
+    printf("\n");
+    printf("Arguments:\n");
+    printf("  <queue_size>: The maximum number of items in each plugin's queue\n");
+    printf("  <plugin1> ... <pluginN>: Name of plugins to load (without .so extension)\n");
+    printf("\n");
+    printf("Available plugins:\n");
+    printf("  logger: Log all strings that pass through\n");
+    printf("  typewriter: Simulates typewriter effect with delays\n");
+    printf("  uppercaser: Converts all characters to uppercase\n");
+    printf("  rotator: Moves every character to the right, Last character moves to the front\n");
+    printf("  flipper: Reverses the order of characters in each string\n");
+    printf("  expander: Expands each character with spaces\n");
+    printf("\n");
+    printf("Example:\n");
+    printf("  ./output/analyzer 20 uppercaser rotator logger\n");
+    fflush(stdout);
 }
 
 static void init_plugins(char** argv) {
