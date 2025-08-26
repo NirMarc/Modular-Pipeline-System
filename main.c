@@ -53,8 +53,6 @@ void print_help() {
     printf("\n");
     printf("Example:\n");
     printf("  ./analyzer 20 uppercaser rotator logger\n");
-    printf("  echo 'hello' | ./analyzer 20 uppercaser rotator logger\n");
-    printf("  echo <END> | ./analyzer 20 uppercaser rotator logger\n");
     fflush(stdout);
 }
 

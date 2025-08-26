@@ -47,9 +47,7 @@ Available plugins:
   expander      - Expands each character with spaces
 
 Example:
-  ./analyzer 20 uppercaser rotator logger
-  echo 'hello' | ./analyzer 20 uppercaser rotator logger
-  echo <END> | ./analyzer 20 uppercaser rotator logger"
+  ./analyzer 20 uppercaser rotator logger"
 }
 
 print_info "-- Testing Plugins --"
