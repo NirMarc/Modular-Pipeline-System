@@ -37,22 +37,24 @@ static void build_plugin_path(char* path, size_t path_size, const char* plugin_n
 }
 
 void print_help() {
-    printf("Usage: ./output/analyzer <queue_size> <plugin1> ... <pluginN>\n");
+    printf("Usage: ./analyzer <queue_size> <plugin1> <plugin2> ... <pluginN>\n");
     printf("\n");
     printf("Arguments:\n");
-    printf("  <queue_size>: The maximum number of items in each plugin's queue\n");
-    printf("  <plugin1> ... <pluginN>: Name of plugins to load (without .so extension)\n");
+    printf("  queue_size   Maximum number of items in each plugin's queue\n");
+    printf("  plugin1..N   Name of plugins to load (without .so extension)\n");
     printf("\n");
     printf("Available plugins:\n");
-    printf("  logger: Log all strings that pass through\n");
-    printf("  typewriter: Simulates typewriter effect with delays\n");
-    printf("  uppercaser: Converts all characters to uppercase\n");
-    printf("  rotator: Moves every character to the right, Last character moves to the front\n");
-    printf("  flipper: Reverses the order of characters in each string\n");
-    printf("  expander: Expands each character with spaces\n");
+    printf("  logger        - Logs all strings that pass through\n");
+    printf("  typewriter    - Simulates typewriter effect with delays\n");
+    printf("  uppercaser    - Converts strings to uppercase\n");
+    printf("  rotator       - Move every character to the right.  Last character moves to the beginning.\n");
+    printf("  flipper       - Reverses the order of the characters\n");
+    printf("  expander      - Expands each character with spaces\n");
     printf("\n");
     printf("Example:\n");
-    printf("  ./output/analyzer 20 uppercaser rotator logger\n");
+    printf("  ./analyzer 20 uppercaser rotator logger\n");
+    printf("  echo 'hello' | ./analyzer 20 uppercaser rotator logger\n");
+    printf("  echo <END> | ./analyzer 20 uppercaser rotator logger\n");
     fflush(stdout);
 }
 

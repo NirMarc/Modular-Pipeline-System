@@ -32,22 +32,24 @@ assert_eq() {
 }
 
 help_msg() {
-    printf "Usage: ./output/analyzer <queue_size> <plugin1> ... <pluginN>
+    printf "Usage: ./analyzer <queue_size> <plugin1> <plugin2> ... <pluginN>
 
 Arguments:
-  <queue_size>: The maximum number of items in each plugin's queue
-  <plugin1> ... <pluginN>: Name of plugins to load (without .so extension)
+  queue_size   Maximum number of items in each plugin's queue
+  plugin1..N   Name of plugins to load (without .so extension)
 
 Available plugins:
-  logger: Log all strings that pass through
-  typewriter: Simulates typewriter effect with delays
-  uppercaser: Converts all characters to uppercase
-  rotator: Moves every character to the right, Last character moves to the front
-  flipper: Reverses the order of characters in each string
-  expander: Expands each character with spaces
+  logger        - Logs all strings that pass through
+  typewriter    - Simulates typewriter effect with delays
+  uppercaser    - Converts strings to uppercase
+  rotator       - Move every character to the right.  Last character moves to the beginning.
+  flipper       - Reverses the order of the characters
+  expander      - Expands each character with spaces
 
 Example:
-  ./output/analyzer 20 uppercaser rotator logger"
+  ./analyzer 20 uppercaser rotator logger
+  echo 'hello' | ./analyzer 20 uppercaser rotator logger
+  echo <END> | ./analyzer 20 uppercaser rotator logger"
 }
 
 print_info "-- Testing Plugins --"
