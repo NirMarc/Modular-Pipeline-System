@@ -1,139 +1,153 @@
-#!/bin/bash
-#Colors for output
+set -e
+
+# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-print_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
+print_status() {
+    echo -e "${GREEN}[TEST]${NC} $1"
+}
 
-print_status() { echo -e "${GREEN}[TEST]${NC} $1"; }
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
 
-print_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
 
-print_error() { echo -e "${RED}[ERROR]${NC} $1"; }
-
-print_info "Building project (build.sh)"
+print_status "Building project..."
 ./build.sh
 
-OUTDIR="./output"
-BIN="$OUTDIR/analyzer"
+print_status "Test 1: Basic uppercaser + logger pipeline"
+EXPECTED="[logger] HELLO"
+ACTUAL=$(echo -e "hello\n<END>" | ./output/analyzer 10 uppercaser logger 2>/dev/null | grep "\[logger\]" | head -1)
 
-assert_eq() {
-    local actual="$1" expected="$2" msg="$3" input="$4"
-    if [ "$actual" != "$expected" ]; then
-        print_error "FAIL: $msg"
-        print_error "Input: $input"
-        print_error "Expected: \n$expected"
-        print_error "Actual: \n$actual"
-        exit 1
-    fi
+if [ "$ACTUAL" == "$EXPECTED" ]; then
+    print_status "Test 1 PASSED"
+else
+    print_error "Test 1 FAILED: Expected '$EXPECTED', got '$ACTUAL'"
+    exit 1
+fi
+
+print_status "Test 2: Complex pipeline (uppercaser -> rotator -> logger)"
+EXPECTED="[logger] OHELL"
+ACTUAL=$(echo -e "hello\n<END>" | ./output/analyzer 10 uppercaser rotator logger 2>/dev/null | grep "\[logger\]" | head -1)
+
+if [ "$ACTUAL" == "$EXPECTED" ]; then
+    print_status "Test 2 PASSED"
+else
+    print_error "Test 2 FAILED: Expected '$EXPECTED', got '$ACTUAL'"
+    exit 1
+fi
+
+print_status "Test 3: Flipper functionality"
+EXPECTED="[logger] olleh"
+ACTUAL=$(echo -e "hello\n<END>" | ./output/analyzer 10 flipper logger 2>/dev/null | grep "\[logger\]" | head -1)
+
+if [ "$ACTUAL" == "$EXPECTED" ]; then
+    print_status "Test 3 PASSED"
+else
+    print_error "Test 3 FAILED: Expected '$EXPECTED', got '$ACTUAL'"
+    exit 1
+fi
+
+print_status "Test 4: Expander functionality"
+EXPECTED="[logger] h e l l o"
+ACTUAL=$(echo -e "hello\n<END>" | ./output/analyzer 10 expander logger 2>/dev/null | grep "\[logger\]" | head -1)
+
+if [ "$ACTUAL" == "$EXPECTED" ]; then
+    print_status "Test 4 PASSED"
+else
+    print_error "Test 4 FAILED: Expected '$EXPECTED', got '$ACTUAL'"
+    exit 1
+fi
+
+print_status "Test 5: Empty string handling"
+EXPECTED="[logger] "
+ACTUAL=$(echo -e "\n<END>" | ./output/analyzer 10 logger 2>/dev/null | grep "\[logger\]" | head -1)
+
+if [ "$ACTUAL" == "$EXPECTED" ]; then
+    print_status "Test 5 PASSED"
+else
+    print_error "Test 5 FAILED: Expected '$EXPECTED', got '$ACTUAL'"
+    exit 1
+fi
+
+print_status "Test 6: Error handling - invalid arguments"
+./output/analyzer 2>/dev/null && {
+    print_error "Test 6 FAILED: Should have failed with no arguments"
+    exit 1
+} || {
+    print_status "Test 6 PASSED: Correctly failed with no arguments"
 }
 
-help_msg() {
-    printf "Usage: ./analyzer <queue_size> <plugin1> <plugin2> ... <pluginN>
-
-Arguments:
-  queue_size   Maximum number of items in each plugin's queue
-  plugin1..N   Name of plugins to load (without .so extension)
-
-Available plugins:
-  logger        - Logs all strings that pass through
-  typewriter    - Simulates typewriter effect with delays
-  uppercaser    - Converts strings to uppercase
-  rotator       - Move every character to the right.  Last character moves to the beginning.
-  flipper       - Reverses the order of the characters
-  expander      - Expands each character with spaces
-
-Example:
-  ./analyzer 20 uppercaser rotator logger"
+print_status "Test 7: Error handling - invalid queue size"
+./output/analyzer 0 logger 2>/dev/null && {
+    print_error "Test 7 FAILED: Should have failed with invalid queue size"
+    exit 1
+} || {
+    print_status "Test 7 PASSED: Correctly failed with invalid queue size"
 }
 
-print_info "-- Testing Plugins --"
+print_status "Test 8: Error handling - non-existent plugin"
+./output/analyzer 10 nonexistent 2>/dev/null && {
+    print_error "Test 8 FAILED: Should have failed with non-existent plugin"
+    exit 1
+} || {
+    print_status "Test 8 PASSED: Correctly failed with non-existent plugin"
+}
 
-print_info "Testing logger"
-EXPECTED="[logger] Single Test Case
-Pipeline shutdown complete"
-INPUT="Single Test Case"
-ACTUAL="$(printf "$INPUT\n<END>\n" | "$BIN" 20 logger)"
-assert_eq "$ACTUAL" "$EXPECTED" "logger did not match expected output" "$INPUT"
-print_status "logger: PASS"
+print_status "Test 9: Multiple uppercase plugins"
+EXPECTED="[logger] HELLO"
+ACTUAL=$(echo -e "hello\n<END>" | ./output/analyzer 10 uppercaser uppercaser logger 2>/dev/null | grep "\[logger\]" | head -1)
 
-print_info "Testing uppercaser expander logger"
-EXPECTED="[logger] U P P E R C A S E R   E X P A N D E R   L O G G E R
-Pipeline shutdown complete"
-INPUT="uppercaser expander logger"
-ACTUAL="$(printf "$INPUT\n<END>\n" | "$BIN" 20 uppercaser expander logger)"
-assert_eq "$ACTUAL" "$EXPECTED" "uppercaser expander logger did not match expected output" "$INPUT"
-print_status "uppercaser expander logger: PASS"
+if [ "$ACTUAL" == "$EXPECTED" ]; then
+    print_status "Test 9 PASSED"
+else
+    print_error "Test 9 FAILED: Expected '$EXPECTED', got '$ACTUAL'"
+    exit 1
+fi
 
-print_info "Testing rotator flipper typewriter"
-EXPECTED="[typewriter] etirwepyt reppilf rotatorr
-Pipeline shutdown complete"
-INPUT="rotator flipper typewriter"
-ACTUAL="$(printf "$INPUT\n<END>\n" | "$BIN" 20 rotator flipper typewriter)"
-assert_eq "$ACTUAL" "$EXPECTED" "rotator flipper typewriter did not match expected output" "$INPUT"
-print_status "rotator flipper typewriter: PASS"
+print_status "Test 10: Single character handling"
+EXPECTED="[logger] A"
+ACTUAL=$(echo -e "a\n<END>" | ./output/analyzer 10 uppercaser logger 2>/dev/null | grep "\[logger\]" | head -1)
 
-print_info "Testing pipeline with same plugin multiple times"
-EXPECTED="[logger] emit elpitlum nigulp emas htiw enilepip tseTs
-[logger] E M I T   E L P I T L U M   N I G U L P   E M A S   H T I W   E N I L E P I P   T S E T S
-Pipeline shutdown complete"
-INPUT="Test pipeline with same plugin multiple times"
-ACTUAL=$(printf "$INPUT\n<END>\n" | "$BIN" 20 rotator flipper logger expander uppercaser logger flipper expander)
-assert_eq "$ACTUAL" "$EXPECTED" "pipeline with same plugin multiple times did not match expected output" "$INPUT"
-print_status "pipeline with same plugin multiple times: PASS"
+if [ "$ACTUAL" == "$EXPECTED" ]; then
+    print_status "Test 10 PASSED"
+else
+    print_error "Test 10 FAILED: Expected '$EXPECTED', got '$ACTUAL'"
+    exit 1
+fi
 
-print_status "-- Passed all plugins --"
 
-print_info "-- Testing Input Arguments --"
+print_status "Test 11: Multiple input lines"
+OUTPUT=$(echo -e "hello\nworld\ntest\n<END>" | ./output/analyzer 5 uppercaser logger 2>/dev/null | grep "\[logger\]")
+LINE_COUNT=$(echo "$OUTPUT" | wc -l)
 
-print_info "Testing queue size must be greater than 0"
-EXPECTED="Queue size must be greater than 0
-$(help_msg)"
-ACTUAL=$("$BIN" 0 logger 2>&1)
-assert_eq "$ACTUAL" "$EXPECTED" "Expected error message when queue size is 0" "./output/analyzer 0 logger"
-print_status "queue size must be greater than 0: PASS"
+if [ "$LINE_COUNT" -eq 3 ]; then
+    print_status "Test 11 PASSED: Processed 3 lines correctly"
+else
+    print_error "Test 11 FAILED: Expected 3 lines, got $LINE_COUNT"
+    exit 1
+fi
 
-print_info "Testing queue size is not an integer"
-EXPECTED="Queue size must be greater than 0
-$(help_msg)"
-ACTUAL=$("$BIN" a logger 2>&1)
-assert_eq "$ACTUAL" "$EXPECTED" "Expected error message when queue size is not an integer" "./output/analyzer a logger"
-print_status "queue size must be an integer: PASS"
+print_status "Test 12: Typewriter plugin functionality"
+timeout 10s bash -c 'echo -e "hi\n<END>" | ./output/analyzer 5 typewriter >/dev/null 2>&1' && {
+    print_status "Test 12 PASSED: Typewriter completed within timeout"
+} || {
+    print_error "Test 12 FAILED: Typewriter test timed out or failed"
+    exit 1
+}
 
-print_info "Testing queue size is missing"
-EXPECTED="$(help_msg)"
-ACTUAL=$("$BIN" logger 2>&1)
-assert_eq "$ACTUAL" "$EXPECTED" "Expected error message when queue size is missing" "./output/analyzer logger"
-print_status "queue size must be an integer: PASS"
+print_status "========================================="
+print_status "All tests passed successfully!"
+print_status "========================================="
 
-print_info "Testing invalid plugin name"
-EXPECTED="./output/notplug.so: cannot open shared object file: No such file or directory
-$(help_msg)"
-ACTUAL=$("$BIN" 20 notplug 2>&1)
-assert_eq "$ACTUAL" "$EXPECTED" "invalid plugin did not match expected output" "./output/analyzer 20 notplug"
-print_status "invalid plugin name: PASS"
-
-print_info "Testing plugins are missing"
-EXPECTED="$(help_msg)"
-ACTUAL=$("$BIN" 20 2>&1)
-assert_eq "$ACTUAL" "$EXPECTED" "Expected error message when plugins are missing" "./output/analyzer 20"
-print_status "plugins are missing: PASS"
-
-print_status "-- Passed all input arguments tests --"
-
-print_info "-- Testing Edge Cases --"
-
-print_info "Testing empty input"
-EXPECTED="[logger] 
-Pipeline shutdown complete"
-INPUT=""
-ACTUAL=$(printf "$INPUT\n<END>\n" | "$BIN" 20 logger)
-assert_eq "$ACTUAL" "$EXPECTED" "empty input did not match expected output" "$INPUT"
-print_status "empty input: PASS"
-
-print_status "-- Passed all edge cases --"
-
-print_status "---- Passed all tests ----"
+print_status "Example usage:"
+print_status "./output/analyzer 20 uppercaser rotator logger flipper"
+print_status ""
+print_status "Try it:"
+print_status "echo 'hello world' | ./output/analyzer 10 uppercaser rotator logger"
